@@ -8,15 +8,26 @@ const App: React.FC = () => {
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
   const handleChange = (set: any) => (e: any) => set(e.target.value || 0);
-  const handleClick = (i: number, j: number) => () => {
-    // (1,1) => (1,2) - (1,1+1)
-    // (1,2) => (5,9) - (1+2,1) - (3,2) - (5,5+1)
+  const handleClick = (i: number, j: number) => () => move(i, j);
+  const move = (i: number, j: number) => {
+    const xDest = i, yDest = j;
     let xGoing = x, yGoing = y;
-    if(xGoing <= i && xGoing + yGoing <= j) xGoing += yGoing;
-    else if(yGoing <= j && yGoing + xGoing <= i) xGoing += yGoing;
-    setX(i);
-    setY(j);
-  };
+    if (xGoing !== xDest && yGoing !== yDest) {
+      const nextX = xGoing + 1, nextY = yGoing + 1;;
+      if (xGoing > yGoing) {
+        setX(nextX);
+      } else {
+        setY(nextY);
+      }
+      if (nextX !== xDest && nextY !== yDest) {
+        setTimeout(() => move(nextX, nextY), 1000);
+      }
+      // if (xGoing <= xDest && xGoing + yGoing <= yDest) xGoing += yGoing;
+      // else if (yGoing <= yDest && yGoing + xGoing <= xDest) xGoing += yGoing;
+      // setX(i);
+      // setY(j);
+    }
+  }
   const mountMatrix = (): any => {
     const mountCols = (i: number): any => {
       const cols = [];
