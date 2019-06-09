@@ -13,8 +13,9 @@ interface IDirection {
 }
 
 const App: React.FC = () => {
-  const [sizeX, setSizeX] = useState(10);
-  const [sizeY, setSizeY] = useState(10);
+  let timerMove: any;
+  const [sizeX, setSizeX] = useState();
+  const [sizeY, setSizeY] = useState();
   const [direction, setDirection] = useState<IDirection>({ left: true, top: true });
   const [currentPosition, setCurrentPosition] = useState<IPosition>({ left: 0, top: 0 });
   const [targetPosition, setTargetPosition] = useState<IPosition>({ left: undefined, top: undefined });
@@ -60,15 +61,19 @@ const App: React.FC = () => {
   useEffect(() => {
     const { left: x, top: y } = targetPosition;
     if (x !== undefined || y !== undefined) {
-      const timerMove = setTimeout(() => {
+      timerMove = setTimeout(() => {
         move(targetPosition);
         return () => clearTimeout(timerMove);
-      }, 100);
+      }, 200);
     }
-  }, [targetPosition]);
+  }, [currentPosition]);
 
   const handleChange = (set: any) => (e: any) => set(e.target.value || 0);
-  const handleClick = (target: IPosition) => () => move(target);
+  const handleClick = (target: IPosition) => () => {
+    clearTimeout(timerMove);
+    move(target);
+    setTargetPosition(target);
+  }
   const move = ({ left: xDest = 0, top: yDest = 0 }: IPosition) => {
     let { left: xGoing = 0, top: yGoing = 0 } = currentPosition;
     const directionX = xGoing < xDest;
@@ -76,7 +81,6 @@ const App: React.FC = () => {
     const distanceX = directionX ? xDest - xGoing : xGoing - xDest;
     const distanceY = directionY ? yDest - yGoing : yGoing - yDest;
     if (xGoing !== xDest || yGoing !== yDest) {
-      setTargetPosition({ left: xDest, top: yDest });
       setDirection({ left: directionX, top: directionY });
       const nextX = distanceX ? (directionX ? xGoing + 1 : xGoing - 1) : xGoing;
       const nextY = distanceY ? (directionY ? yGoing + 1 : yGoing - 1) : yGoing;
@@ -85,11 +89,6 @@ const App: React.FC = () => {
       } else {
         setCurrentPosition({ top: nextY, left: xGoing });
       }
-
-      // if (xGoing <= xDest && xGoing + yGoing <= yDest) xGoing += yGoing;
-      // else if (yGoing <= yDest && yGoing + xGoing <= xDest) xGoing += yGoing;
-      // setX(i);
-      // setY(j);
     }
   }
   const mountMatrix = (): any => {
